@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mood_tracker/database_helper.dart';
+import 'package:mood_tracker/moments_gallery_screen.dart';
 
 class HappyMoments extends StatefulWidget {
   const HappyMoments({super.key});
@@ -44,12 +45,27 @@ class _HappyMomentsState extends State<HappyMoments> {
         child: Column(
           children: [
             Row(
-              children: const [
-                Icon(Icons.sentiment_very_satisfied),
-                SizedBox(width: 8),
-                Text(
-                  'Happy Moments',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: const [
+                    Icon(Icons.sentiment_very_satisfied),
+                    SizedBox(width: 8),
+                    Text(
+                      'Happy Moments',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MomentsGalleryScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.photo_library, size: 20),
+                  label: const Text('Gallery'),
                 ),
               ],
             ),
@@ -61,10 +77,14 @@ class _HappyMomentsState extends State<HappyMoments> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 50),
               ),
             ),
             const SizedBox(height: 16),
-            Text('${_moments.length} moments captured this week'),
+            Text(
+              '${_moments.length} moments captured so far',
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
           ],
         ),
       ),

@@ -55,7 +55,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Mood> _moods = [];
-  double _progress = 0.4; // Initial progress
+  double _progress = 0.0; // Initial progress changed from 0.4 to 0.0
   List<DailyRecord> _records = [];
 
   @override

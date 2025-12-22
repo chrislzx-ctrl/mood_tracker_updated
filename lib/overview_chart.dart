@@ -17,14 +17,6 @@ class OverviewChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Daily Overview',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
             SizedBox(
               height: 200,
               child: LineChart(
@@ -46,7 +38,7 @@ class OverviewChart extends StatelessWidget {
                       color: Colors.red,
                       barWidth: 3,
                       isStrokeCapRound: true,
-                      dotData: const FlDotData(show: false),
+                      dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
                     ),
 
@@ -58,7 +50,7 @@ class OverviewChart extends StatelessWidget {
                           .map(
                             (e) => FlSpot(
                           e.key.toDouble(),
-                          e.value.sleepQuality * 5,
+                          e.value.sleepQuality.toDouble() * 5,
                         ),
                       )
                           .toList(),
@@ -66,7 +58,7 @@ class OverviewChart extends StatelessWidget {
                       color: Colors.blue,
                       barWidth: 3,
                       isStrokeCapRound: true,
-                      dotData: const FlDotData(show: false),
+                      dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
                     ),
 
@@ -78,7 +70,7 @@ class OverviewChart extends StatelessWidget {
                           .map(
                             (e) => FlSpot(
                           e.key.toDouble(),
-                          e.value.energyLevel * 5,
+                          e.value.energyLevel.toDouble() * 5,
                         ),
                       )
                           .toList(),
@@ -86,7 +78,7 @@ class OverviewChart extends StatelessWidget {
                       color: Colors.green,
                       barWidth: 3,
                       isStrokeCapRound: true,
-                      dotData: const FlDotData(show: false),
+                      dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
                     ),
                   ],
@@ -103,10 +95,19 @@ class OverviewChart extends StatelessWidget {
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
+                        interval: 1, // Fix repeated labels
                         getTitlesWidget: (value, meta) {
-                          if (value.toInt() < records.length) {
-                            final date = records[value.toInt()].date;
-                            return Text(DateFormat.E().format(date));
+                          int index = value.toInt();
+                          if (index >= 0 && index < records.length) {
+                            final date = records[index].date;
+                            // Format to show Day and Date if preferred, e.g., "Mon 15"
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                DateFormat('E').format(date),
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            );
                           }
                           return const SizedBox.shrink();
                         },
@@ -119,10 +120,17 @@ class OverviewChart extends StatelessWidget {
                       sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
-                  gridData: const FlGridData(show: true),
+                  gridData: const FlGridData(
+                    show: true,
+                    drawVerticalLine: true,
+                    horizontalInterval: 2,
+                    verticalInterval: 1,
+                  ),
                   borderData: FlBorderData(show: true),
                   minY: 0,
                   maxY: 10,
+                  minX: 0,
+                  maxX: (records.length > 1 ? records.length - 1 : 1).toDouble(),
                 ),
               ),
             ),
@@ -134,6 +142,14 @@ class OverviewChart extends StatelessWidget {
                 _LegendItem(color: Colors.blue, label: 'Sleep'),
                 _LegendItem(color: Colors.green, label: 'Energy'),
               ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Daily Overview',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),

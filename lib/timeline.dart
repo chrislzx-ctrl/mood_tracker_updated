@@ -170,6 +170,7 @@ class _TimelineState extends State<Timeline> {
                         show: true,
                         color: Colors.deepPurple.withOpacity(0.3),
                       ),
+                      dotData: FlDotData(show: true),
                     ),
                   ],
                   titlesData: FlTitlesData(
@@ -177,6 +178,7 @@ class _TimelineState extends State<Timeline> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
+                          if (_selectedIndex == 2) return const SizedBox.shrink();
                           final date = DateTime.fromMillisecondsSinceEpoch(
                               value.toInt());
                           return Text(DateFormat.E().format(date));
@@ -188,20 +190,20 @@ class _TimelineState extends State<Timeline> {
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
                           switch (value.toInt()) {
-                            case 0:
-                              return const Text('Tough');
-                            case 1:
-                              return const Text('Low');
-                            case 2:
-                              return const Text('Okay');
-                            case 3:
-                              return const Text('Good');
                             case 4:
-                              return const Text('Great');
+                              return const Text('😊', style: TextStyle(fontSize: 20));
+                            case 3:
+                              return const Text('🙂', style: TextStyle(fontSize: 20));
+                            case 2:
+                              return const Text('😐', style: TextStyle(fontSize: 20));
+                            case 1:
+                              return const Text('😟', style: TextStyle(fontSize: 20));
+                            case 0:
+                              return const Text('😢', style: TextStyle(fontSize: 20));
                           }
                           return const Text('');
                         },
-                        reservedSize: 40,
+                        reservedSize: 30,
                       ),
                     ),
                     topTitles:
@@ -211,6 +213,7 @@ class _TimelineState extends State<Timeline> {
                   ),
                   gridData: const FlGridData(
                     show: true,
+                    drawVerticalLine: false,
                   ),
                   borderData: FlBorderData(
                     show: true,
@@ -218,6 +221,8 @@ class _TimelineState extends State<Timeline> {
                       color: Colors.grey.shade300,
                     ),
                   ),
+                  minY: 0,
+                  maxY: 4,
                 ),
               ),
             ),
@@ -271,7 +276,18 @@ class _TimelineState extends State<Timeline> {
         final monthEnd = DateTime(today.year, today.month + 1, 0);
         return moodDate.isAfter(monthStart.subtract(const Duration(days: 1))) && moodDate.isBefore(monthEnd.add(const Duration(days: 1)));
       }
-    }).map((entry) => entry.value);
+    }).map((entry) => entry.value).toList();
+
+    filteredMoods.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    if (filteredMoods.length < 2) {
+       return filteredMoods
+        .map((mood) => FlSpot(
+              mood.timestamp.millisecondsSinceEpoch.toDouble(),
+              _moodToValue(mood.name),
+            ))
+        .toList();
+    }
 
     return filteredMoods
         .map((mood) => FlSpot(
