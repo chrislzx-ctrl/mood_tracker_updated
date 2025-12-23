@@ -91,6 +91,23 @@ class _TimelineState extends State<Timeline> {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    double? minX;
+    double? maxX;
+    double interval = 24 * 60 * 60 * 1000; // default 1 day
+
+    if (_selectedIndex == 1) { // Weekly
+      minX = today.subtract(const Duration(days: 6)).millisecondsSinceEpoch.toDouble();
+      maxX = today.millisecondsSinceEpoch.toDouble();
+    } else if (_selectedIndex == 2) { // Monthly
+      final monthStart = DateTime(today.year, today.month, 1);
+      final monthEnd = DateTime(today.year, today.month + 1, 0);
+      minX = monthStart.millisecondsSinceEpoch.toDouble();
+      maxX = monthEnd.millisecondsSinceEpoch.toDouble();
+      interval = 4 * 24 * 60 * 60 * 1000; // label every 4 days for month
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -160,6 +177,8 @@ class _TimelineState extends State<Timeline> {
               height: 150,
               child: LineChart(
                 LineChartData(
+                  minX: minX,
+                  maxX: maxX,
                   lineBarsData: [
                     LineChartBarData(
                       spots: _getChartData(),
@@ -177,11 +196,18 @@ class _TimelineState extends State<Timeline> {
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
+                        interval: interval,
                         getTitlesWidget: (value, meta) {
                           if (_selectedIndex == 2) return const SizedBox.shrink();
-                          final date = DateTime.fromMillisecondsSinceEpoch(
-                              value.toInt());
-                          return Text(DateFormat.E().format(date));
+                          final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            space: 8,
+                            child: Text(
+                              DateFormat.E().format(date),
+                              style: const TextStyle(fontSize: 10),
+                            ),
+                          );
                         },
                       ),
                     ),
@@ -280,20 +306,14 @@ class _TimelineState extends State<Timeline> {
 
     filteredMoods.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-    if (filteredMoods.length < 2) {
-       return filteredMoods
-        .map((mood) => FlSpot(
-              mood.timestamp.millisecondsSinceEpoch.toDouble(),
-              _moodToValue(mood.name),
-            ))
-        .toList();
-    }
-
     return filteredMoods
-        .map((mood) => FlSpot(
-              mood.timestamp.millisecondsSinceEpoch.toDouble(),
+        .map((mood) {
+          final normalizedDate = DateTime(mood.timestamp.year, mood.timestamp.month, mood.timestamp.day);
+          return FlSpot(
+              normalizedDate.millisecondsSinceEpoch.toDouble(),
               _moodToValue(mood.name),
-            ))
+            );
+        })
         .toList();
   }
 
