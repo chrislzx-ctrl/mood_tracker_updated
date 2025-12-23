@@ -17,6 +17,14 @@ class OverviewChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Daily Overview',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
             SizedBox(
               height: 200,
               child: LineChart(
@@ -142,14 +150,6 @@ class OverviewChart extends StatelessWidget {
                 _LegendItem(color: Colors.blue, label: 'Sleep'),
                 _LegendItem(color: Colors.green, label: 'Energy'),
               ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Daily Overview',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),
